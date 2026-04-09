@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flip Clock Test</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+    }
+    .clock {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto;
+    }
+    .digit-box {
+      width: 40px;
+      height: 72px;
+      overflow: hidden;
+      position: relative;
+    }
+    .digit-track {
+      display: flex;
+      flex-direction: column;
+      transform: translateY(0);
+      transition: transform 0.5s ease;
+    }
+    .digit {
+      height: 72px;
+      line-height: 72px;
+      font-size: 60px;
+      font-weight: bold;
+      text-align: center;
+      user-select: none;
+    }
+    .sep {
+      width: 2px;
+      height: 50px;
+      background: #fff;
+      margin: 0 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="clock">
+
+    <div class="digit-box" id="d1">
+      <div class="digit-track">
+        <span class="digit">0</span>
+        <span class="digit">0</span>
+      </div>
+    </div>
+
+    <div class="digit-box" id="d2">
+      <div class="digit-track">
+        <span class="digit">0</span>
+        <span class="digit">0</span>
+      </div>
+    </div>
+
+    <span class="sep"></span>
+
+    <div class="digit-box" id="d3">
+      <div class="digit-track">
+        <span class="digit">0</span>
+        <span class="digit">0</span>
+      </div>
+    </div>
+
+    <div class="digit-box" id="d4">
+      <div class="digit-track">
+        <span class="digit">0</span>
+        <span class="digit">0</span>
+      </div>
+    </div>
+
+    <span class="sep"></span>
+
+    <div class="digit-box" id="d5">
+      <div class="digit-track">
+        <span class="digit">0</span>
+        <span class="digit">0</span>
+      </div>
+    </div>
+
+    <div class="digit-box" id="d6">
+      <div class="digit-track">
+        <span class="digit">0</span>
+        <span class="digit">0</span>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    const DIGIT_HEIGHT = 72;
+
+    // 补零
+    function pad(num) {
+      return String(num).padStart(2, '0');
+    }
+
+    // 让某一个数字翻动
+    function flipDigit(id, newValue) {
+      const box = document.getElementById(id);
+      const track = box.querySelector('.digit-track');
+      const digits = track.querySelectorAll('.digit');
+
+      const currentValue = digits[0].textContent;
+
+      // 如果数字没变，就不翻
+      if (currentValue === newValue) return;
+
+      // 第二个数字先改成“新数字”
+      digits[1].textContent = newValue;
+
+      // 开始滑动
+      track.style.transform = `translateY(-${DIGIT_HEIGHT}px)`;
+
+      // 动画结束后，把结构重置
+      setTimeout(() => {
+        digits[0].textContent = newValue;
+        digits[1].textContent = newValue;
+        track.style.transition = 'none';
+        track.style.transform = 'translateY(0)';
+
+        // 强制浏览器刷新一下
+        track.offsetHeight;
+
+        // 再把 transition 恢复
+        track.style.transition = 'transform 0.5s ease';
+      }, 500);
+    }
+
+    // 更新时间
+    function updateClock() {
+      const now = new Date();
+
+      let hours = pad(now.getHours());
+      let minutes = pad(now.getMinutes());
+      let seconds = pad(now.getSeconds());
+
+      flipDigit('d1', hours[0]);
+      flipDigit('d2', hours[1]);
+      flipDigit('d3', minutes[0]);
+      flipDigit('d4', minutes[1]);
+      flipDigit('d5', seconds[0]);
+      flipDigit('d6', seconds[1]);
+    }
+
+    // 初始化：先把当前时间直接写进去（不动画）
+    function initClock() {
+      const now = new Date();
+
+      let hours = pad(now.getHours());
+      let minutes = pad(now.getMinutes());
+      let seconds = pad(now.getSeconds());
+
+      const values = [
+        hours[0], hours[1],
+        minutes[0], minutes[1],
+        seconds[0], seconds[1]
+      ];
+
+      ['d1','d2','d3','d4','d5','d6'].forEach((id, index) => {
+        const box = document.getElementById(id);
+        const digits = box.querySelectorAll('.digit');
+        digits[0].textContent = values[index];
+        digits[1].textContent = values[index];
+      });
+    }
+
+    initClock();
+    setInterval(updateClock, 1000);
+  </script>
+
+</body>
+</html> 
